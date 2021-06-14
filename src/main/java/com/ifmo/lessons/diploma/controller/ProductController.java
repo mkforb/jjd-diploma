@@ -5,7 +5,9 @@ import com.ifmo.lessons.diploma.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 
 import java.util.List;
 
@@ -28,10 +30,29 @@ public class ProductController {
         service.save(product1);
     }
 
-    @GetMapping("/product-list")
+    @GetMapping("/")
+    public String home(Model model) {
+        return "index";
+    }
+
+    @GetMapping("/product/list")
     public String productList(Model model) {
         List<Product> products = service.getAll();
         model.addAttribute("products", products);
         return "product-list";
+    }
+
+    @GetMapping("/product/add")
+    public String productAdd(Product product) {
+        return "product-add";
+    }
+
+    @PostMapping("/product/save")
+    public String productSave(Product product, BindingResult result, Model model) {
+        if (result.hasErrors()) {
+            return "product-add";
+        }
+        service.save(product);
+        return "redirect:/product/list";
     }
 }

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Add product</title>
+  <!--/*/<th:block th:insert="general.html :: headerfiles"></th:block>/*/-->
+</head>
+<body>
+<div th:replace="general.html :: mainmenu"></div>
+<main class="container">
+  <div class="bg-light p-5 rounded">
+    <h1>Add Product</h1>
+    <form action="#" th:action="@{/product/save}" th:object="${product}" method="post">
+      <label for="name">Name</label>
+      <input type="text" th:field="*{name}" id="name" placeholder="Name">
+      <span th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></span>
+      <label for="price">Price</label>
+      <input type="text" th:field="*{price}" id="price" placeholder="Price">
+      <span th:if="${#fields.hasErrors('price')}" th:errors="*{price}"></span>
+      <input type="submit" value="Add Product">
+    </form>
+  </div>
+</main>
+<!--/*/<th:block th:insert="general.html :: footer"></th:block>/*/-->
+</body>
+</html>
