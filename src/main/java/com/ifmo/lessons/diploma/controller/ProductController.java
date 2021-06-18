@@ -7,7 +7,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.List;
 
@@ -15,6 +17,7 @@ import java.util.List;
  * Created by User on 14.06.2021.
  */
 @Controller
+@RequestMapping("/product")
 public class ProductController {
     private final ProductService service;
 
@@ -30,29 +33,39 @@ public class ProductController {
         service.save(product1);
     }
 
-    @GetMapping("/")
-    public String home(Model model) {
-        return "index";
-    }
-
-    @GetMapping("/product/list")
-    public String productList(Model model) {
+    @GetMapping("/list")
+    public String list(Model model) {
         List<Product> products = service.getAll();
+        model.addAttribute("title", "Products");
         model.addAttribute("products", products);
         return "product-list";
     }
 
-    @GetMapping("/product/add")
-    public String productAdd(Product product) {
+    @GetMapping("/add")
+    public String add(Product product) {
         return "product-add";
     }
 
-    @PostMapping("/product/save")
-    public String productSave(Product product, BindingResult result, Model model) {
+    @GetMapping("/edit/{id}")
+    public String edit(@PathVariable("id") int id, Model model) {
+        Product product = service.getById(id);
+        model.addAttribute("product", product);
+        return "product-add";
+    }
+
+    @PostMapping("/save/{id}")
+    public String save(@PathVariable("id") int id, Product product, BindingResult result, Model model) {
         if (result.hasErrors()) {
             return "product-add";
         }
         service.save(product);
+        return "redirect:/product/list";
+    }
+
+    @GetMapping("/delete/{id}")
+    public String delete(@PathVariable("id") int id, Model model) {
+        Product product = service.getById(id);
+        service.delete(product);
         return "redirect:/product/list";
     }
 }

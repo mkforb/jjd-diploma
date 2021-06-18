@@ -22,13 +22,21 @@ public class ProductService {
         this.repository = repository;
     }
 
-    public void save(Product product) {
-        repository.save(product);
-    }
-
     public List<Product> getAll() {
         List<Product> products = new ArrayList<>();
         repository.findAll().forEach(products::add);
         return products;
+    }
+
+    public Product getById(int id) {
+        return repository.findById(id).orElseThrow(IllegalArgumentException::new);
+    }
+
+    public void save(Product product) {
+        repository.save(product);
+    }
+
+    public void delete(Product product) {
+        repository.delete(product);
     }
 }

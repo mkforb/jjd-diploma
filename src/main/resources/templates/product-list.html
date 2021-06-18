@@ -1,20 +1,22 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Products</title>
+    <title th:text="${title}"></title>
     <!--/*/<th:block th:insert="general.html :: headerfiles"></th:block>/*/-->
 </head>
 <body>
 <div th:replace="general.html :: mainmenu"></div>
 <main class="container">
     <div class="bg-light p-5 rounded">
-        <h1>Products</h1>
+        <h1 th:text="${title}"></h1>
+        <p><a th:href="@{/product/add}">Add product</a></p>
         <table class="table">
             <thead>
             <tr>
                 <th>Name</th>
                 <th>Price</th>
                 <th>Stock</th>
+                <th>Actions</th>
             </tr>
             </thead>
             <tbody>
@@ -22,6 +24,7 @@
                 <td th:text="${product.name}"></td>
                 <td th:text="${product.price}"></td>
                 <td th:text="${product.stock}"></td>
+                <td><a th:href="@{/product/edit/{id}(id=${product.id})}">Edit</a> <a th:href="@{/product/delete/{id}(id=${product.id})}">Delete</a></td>
             </tr>
             </tbody>
         </table>
