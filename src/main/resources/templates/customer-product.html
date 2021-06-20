@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title th:text="${title}"></title>
+  <!--/*/<th:block th:insert="general.html :: headerfiles"></th:block>/*/-->
+</head>
+<body>
+<div th:replace="general.html :: mainmenu"></div>
+<div class="container">
+  <main>
+    <h2 th:text="${title}"></h2>
+    <p><a th:href="@{/customer-product/{customerId}/add(customerId=${customer.id})}">Add product</a></p>
+    <form action="#" th:action="@{/customer-product/{id}/save(id=${customer.id})}" th:object="${form}" method="post">
+      <button type="submit" class="btn btn-primary">Save Customer</button>
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Number</th>
+              <th>Price</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="elem, stat : ${form.list}">
+              <td th:text="${elem.product.name}"></td>
+              <td>
+                <input type="hidden" th:name="|list[${stat.index}].customer.id|" th:value="${elem.customer.id}"/>
+                <input type="hidden" th:name="|list[${stat.index}].product.id|" th:value="${elem.product.id}"/>
+                <input type="text" class="form-control" th:name="|list[${stat.index}].number|" th:value="${elem.number}"/>
+              </td>
+              <td><input type="text" class="form-control" th:name="|list[${stat.index}].price|" th:value="${elem.price}"/></td>
+              <td></td>
+            </tr>
+            <!--<tr th:each="elem : ${list}">
+              <td th:text="${elem.product.name}"></td>
+              <td th:text="${elem.number}"></td>
+              <td th:text="${elem.price}"></td>
+              <td><a th:href="@{/customer-product/{customerId}/edit/{productId}(customerId=${customer.id},productId=${elem.product.id})}">Edit</a> <a th:href="@{/customer-product/{customerId}/delete/{productId}(customerId=${customer.id},productId=${elem.product.id})}">Delete</a></td>
+            </tr>-->
+          </tbody>
+        </table>
+      </div>
+    </form>
+  </main>
+</div>
+<!--/*/<th:block th:insert="general.html :: footer"></th:block>/*/-->
+</body>
+</html>

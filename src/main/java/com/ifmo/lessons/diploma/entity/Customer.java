@@ -19,6 +19,5 @@ public class Customer extends Parent {
     @Column(nullable = false)
     @NotEmpty
     private String name;
-    @Column
     private String address;
 }

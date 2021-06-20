@@ -31,6 +31,12 @@ public class ProductController {
         product1.setPrice(105);
         product1.setStock(8);
         service.save(product1);
+
+        product1 = new Product();
+        product1.setName("Prod 2");
+        product1.setPrice(59);
+        product1.setStock(0);
+        service.save(product1);
     }
 
     @GetMapping("/list")

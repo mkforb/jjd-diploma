@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title th:text="${title}"></title>
+  <!--/*/<th:block th:insert="general.html :: headerfiles"></th:block>/*/-->
+</head>
+<body>
+<div th:replace="general.html :: mainmenu"></div>
+<div class="container">
+  <main>
+    <div class="col-md-8 col-lg-8">
+      <h2 th:text="${title + ' ' + cp.customer.name}"></h2>
+      <form action="#" th:action="@{/customer-product/{customerId}/save/{productId}(customerId=${cp.customer.id},productId=${cp.product.id})}" th:object="${cp}" method="post">
+        <input type="hidden" th:field="*{customer}" id="customer"/>
+        <input type="hidden" th:field="*{product}" id="product"/>
+        <div class="row g-5">
+          <div class="col-12">
+            <label for="number" class="form-label">Number</label>
+            <input type="text" class="form-control" th:field="*{number}" id="number" placeholder="Number"/>
+            <span th:if="${#fields.hasErrors('number')}" th:errors="*{number}"></span>
+          </div>
+          <div class="col-12">
+            <label for="price" class="form-label">Price</label>
+            <input type="text" class="form-control" th:field="*{price}" id="price" placeholder="Price"/>
+            <span th:if="${#fields.hasErrors('price')}" th:errors="*{price}"></span>
+          </div>
+        </div>
+        <hr class="my-4"/>
+        <a href="@{/customer-product/{customerId}(customerId=${cp.customer.id})}" class="btn btn-secondary">Cancel</a>
+        <button type="submit" class="btn btn-primary">Save Customer</button>
+      </form>
+    </div>
+  </main>
+</div>
+<!--/*/<th:block th:insert="general.html :: footer"></th:block>/*/-->
+</body>
+</html>

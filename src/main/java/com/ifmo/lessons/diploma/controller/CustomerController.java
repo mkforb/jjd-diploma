@@ -49,15 +49,21 @@ public class CustomerController {
     }
 
     @GetMapping("/edit/{id}")
-    public String edit(@PathVariable("id") int id, Model model) {
-        Customer customer = service.getById(id);
+    public String edit(@PathVariable(required = false) int id, Model model) {
+        System.out.println("customerEdit");
+        Customer customer = null;
+        try {
+            customer = service.getById(id);
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
         model.addAttribute("title", "Edit Customer");
         model.addAttribute("customer", customer);
         return "customer-add";
     }
 
     @PostMapping("/save/{id}")
-    public String save(@PathVariable("id") int id, @Valid Customer customer, BindingResult result, Model model) {
+    public String save(@PathVariable int id, @Valid Customer customer, BindingResult result, Model model) {
         if (result.hasErrors()) {
             return "customer-add";
         }

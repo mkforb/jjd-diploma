@@ -18,8 +18,6 @@ import javax.persistence.Table;
 public class Product extends Parent {
     @Column(nullable = false)
     private String name;
-    @Column
     private double price;
-    @Column
     private int stock;
 }
