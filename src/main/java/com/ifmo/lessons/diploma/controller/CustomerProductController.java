@@ -55,12 +55,22 @@ public class CustomerProductController {
 
         Customer customer = customerService.getById(id);
         List<CustomerProduct> list = service.getByCustomer(id);
+        model.addAttribute("title", "Customer products");
+        model.addAttribute("customer", customer);
+        model.addAttribute("list", list);
+        return "customer-product-list";
+    }
+
+    @GetMapping("/{id}/edit")
+    public String editByCustomer(@PathVariable int id, Model model) {
+        Customer customer = customerService.getById(id);
+        List<CustomerProduct> list = service.getByCustomer(id);
         CustomerProductForm form = new CustomerProductForm();
         form.setList(list);
         model.addAttribute("title", "Customer products");
         model.addAttribute("customer", customer);
         model.addAttribute("form", form);
-        return "customer-product";
+        return "customer-product-list-edit";
     }
 
     @PostMapping("/{id}/save")
