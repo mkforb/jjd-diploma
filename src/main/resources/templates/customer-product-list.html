@@ -9,7 +9,10 @@
 <div class="container">
     <main>
         <h2 th:text="${title}"></h2>
-        <p><a th:href="@{/customer-product/{customerId}/edit(customerId=${customer.id})}">Edit</a></p>
+        <p>
+            <a th:href="@{/customer-product/{customerId}/edit(customerId=${customer.id})}">Edit</a>
+            <a th:href="@{/customer-product/{customerId}/excel(customerId=${customer.id})}">Excel</a>
+        </p>
         <div class="table-responsive">
             <table class="table">
                 <thead>

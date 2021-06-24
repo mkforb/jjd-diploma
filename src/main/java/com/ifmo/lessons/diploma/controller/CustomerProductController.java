@@ -7,15 +7,23 @@ import com.ifmo.lessons.diploma.service.CustomerProductForm;
 import com.ifmo.lessons.diploma.service.CustomerProductService;
 import com.ifmo.lessons.diploma.service.CustomerService;
 import com.ifmo.lessons.diploma.service.ProductService;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.util.IOUtils;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -119,5 +127,57 @@ public class CustomerProductController {
         //cp1.setPrice(cp.getPrice());
         //service.save(cp1);
         return "redirect:/customer-product/" + cId;
+    }
+
+    @GetMapping(value = "/{id}/excel", produces = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    public @ResponseBody byte[] excel(@PathVariable int id) {
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Customer-material");
+        Row header = sheet.createRow(0);
+        Cell headerCell = header.createCell(0);
+        headerCell.setCellValue("Customer");
+        headerCell = header.createCell(1);
+        headerCell.setCellValue("Product");
+        headerCell = header.createCell(2);
+        headerCell.setCellValue("Number");
+        headerCell = header.createCell(3);
+        headerCell.setCellValue("Price");
+
+        List<CustomerProduct> list = service.getByCustomer(id);
+        int rowCount = 0;
+        for (CustomerProduct cp : list) {
+            rowCount++;
+            Row row = sheet.createRow(rowCount);
+            // Customer Id
+            Cell cell = row.createCell(0);
+            cell.setCellValue(cp.getCustomer().getId());
+            // Product Id
+            cell = row.createCell(1);
+            cell.setCellValue(cp.getProduct().getId());
+            //
+            cell = row.createCell(2);
+            cell.setCellValue(cp.getNumber());
+            //
+            cell = row.createCell(3);
+            cell.setCellValue(cp.getPrice());
+        }
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        try {
+            workbook.write(stream);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            workbook.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        ByteArrayInputStream is = new ByteArrayInputStream(stream.toByteArray());
+        try {
+            return IOUtils.toByteArray(is);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }
