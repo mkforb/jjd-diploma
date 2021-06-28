@@ -16,7 +16,7 @@ import javax.validation.constraints.NotEmpty;
 @Entity
 @Table(name = "dp_customer")
 public class Customer extends Parent {
-    @Column(nullable = false)
+    @Column(nullable = false, length = 100)
     @NotEmpty
     private String name;
     private String address;

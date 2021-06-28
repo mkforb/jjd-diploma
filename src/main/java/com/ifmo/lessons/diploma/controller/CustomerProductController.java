@@ -1,8 +1,10 @@
 package com.ifmo.lessons.diploma.controller;
 
+import com.ifmo.lessons.diploma.common.ExcelHelper;
 import com.ifmo.lessons.diploma.entity.Customer;
 import com.ifmo.lessons.diploma.entity.CustomerProduct;
 import com.ifmo.lessons.diploma.entity.Product;
+import com.ifmo.lessons.diploma.form.CustomerProductExcel;
 import com.ifmo.lessons.diploma.service.CustomerProductForm;
 import com.ifmo.lessons.diploma.service.CustomerProductService;
 import com.ifmo.lessons.diploma.service.CustomerService;
@@ -24,7 +26,10 @@ import org.springframework.web.bind.annotation.*;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by User on 20.06.2021.
@@ -129,11 +134,24 @@ public class CustomerProductController {
         return "redirect:/customer-product/" + cId;
     }
 
-    @GetMapping(value = "/{id}/excel", produces = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    @GetMapping(value = "/{id}/excel", produces = ExcelHelper.TYPE)
     public @ResponseBody byte[] excel(@PathVariable int id) {
-        Workbook workbook = new XSSFWorkbook();
-        Sheet sheet = workbook.createSheet("Customer-material");
-        Row header = sheet.createRow(0);
+        ExcelHelper eh = new ExcelHelper(getFields());
+        List<CustomerProduct> list = service.getByCustomer(id);
+        List<CustomerProductExcel> listExcel = new ArrayList<>();
+        for (CustomerProduct cp : list) {
+            listExcel.add(new CustomerProductExcel(cp));
+        }
+        try (Workbook wb = eh.getWb(listExcel); ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+            wb.write(os);
+            return os.toByteArray();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        /*Workbook wb = new XSSFWorkbook();
+        Sheet sh = wb.createSheet("Customer-material");
+        Row header = sh.createRow(0);
         Cell headerCell = header.createCell(0);
         headerCell.setCellValue("Customer");
         headerCell = header.createCell(1);
@@ -147,7 +165,7 @@ public class CustomerProductController {
         int rowCount = 0;
         for (CustomerProduct cp : list) {
             rowCount++;
-            Row row = sheet.createRow(rowCount);
+            Row row = sh.createRow(rowCount);
             // Customer Id
             Cell cell = row.createCell(0);
             cell.setCellValue(cp.getCustomer().getId());
@@ -163,12 +181,12 @@ public class CustomerProductController {
         }
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         try {
-            workbook.write(stream);
+            wb.write(stream);
         } catch (IOException e) {
             e.printStackTrace();
         }
         try {
-            workbook.close();
+            wb.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -177,7 +195,18 @@ public class CustomerProductController {
             return IOUtils.toByteArray(is);
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        }*/
         return null;
+    }
+
+    private Map<String, String> getFields() {
+        Map<String, String> fields = new LinkedHashMap<>();
+        fields.put("Customer ID", "customerId");
+        fields.put("Customer Name", "customerName");
+        fields.put("Product ID", "productId");
+        fields.put("Product Name", "productName");
+        fields.put("Number", "number");
+        fields.put("Price", "price");
+        return fields;
     }
 }

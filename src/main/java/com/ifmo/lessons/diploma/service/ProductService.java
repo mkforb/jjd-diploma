@@ -32,6 +32,10 @@ public class ProductService {
         return repository.findById(id).orElseThrow(IllegalArgumentException::new);
     }
 
+    public Product getBySku(String sku) {
+        return repository.findBySku(sku);
+    }
+
     public void save(Product product) {
         repository.save(product);
     }

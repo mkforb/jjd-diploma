@@ -9,22 +9,22 @@
 <div class="container">
   <main>
     <h2 th:text="${title}"></h2>
-    <p><a th:href="@{/customer/add}">Add customer</a></p>
+    <p><a th:href="@{/customer/add}">Добавить клиента</a></p>
     <div class="table-responsive">
       <table class="table">
         <thead>
           <tr>
-            <th>Name</th>
-            <th>Actions</th>
+            <th>Название</th>
+            <th>Действия</th>
           </tr>
         </thead>
         <tbody>
           <tr th:each="customer : ${customers}">
             <td th:text="${customer.name}"></td>
             <td>
-              <a th:href="@{/customer-product/{id}(id=${customer.id})}">Products</a>
-              <a th:href="@{/customer/edit/{id}(id=${customer.id})}">Edit</a>
-              <a th:href="@{/customer/delete/{id}(id=${customer.id})}">Delete</a>
+              <a th:href="@{/customer-product/{id}(id=${customer.id})}">Товары</a>
+              <a th:href="@{/customer/edit/{id}(id=${customer.id})}">Изменить</a>
+              <a th:href="@{/customer/delete/{id}(id=${customer.id})}">Удалить</a>
             </td>
           </tr>
         </tbody>

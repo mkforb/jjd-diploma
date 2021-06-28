@@ -36,35 +36,36 @@ public class CustomerController {
     @GetMapping("/list")
     public String list(Model model) {
         List<Customer> customers = service.getAll();
-        model.addAttribute("title", "Customers");
+        model.addAttribute("title", "Клиенты");
         model.addAttribute("customers", customers);
         return "customer-list";
     }
 
     @GetMapping("/add")
     public String add(Model model) {
-        model.addAttribute("title", "Add Customer");
-        model.addAttribute("customer", new Customer());
+        Customer customer = new Customer();
+        model.addAttribute("title", getTitle(customer));
+        model.addAttribute("customer", customer);
         return "customer-add";
     }
 
     @GetMapping("/edit/{id}")
-    public String edit(@PathVariable(required = false) int id, Model model) {
-        System.out.println("customerEdit");
+    public String edit(@PathVariable int id, Model model) {
         Customer customer = null;
         try {
             customer = service.getById(id);
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
         }
-        model.addAttribute("title", "Edit Customer");
+        model.addAttribute("title", getTitle(customer));
         model.addAttribute("customer", customer);
         return "customer-add";
     }
 
-    @PostMapping("/save/{id}")
-    public String save(@PathVariable int id, @Valid Customer customer, BindingResult result, Model model) {
+    @PostMapping("/save")
+    public String save(@Valid Customer customer, BindingResult result, Model model) {
         if (result.hasErrors()) {
+            model.addAttribute("title", getTitle(customer));
             return "customer-add";
         }
         service.save(customer);
@@ -76,5 +77,12 @@ public class CustomerController {
         Customer customer = service.getById(id);
         service.delete(customer);
         return "redirect:/customer/list";
+    }
+
+    private String getTitle(Customer customer) {
+        if (customer.getId() == 0) {
+            return "Добавить клиента";
+        }
+        return "Изменить клиента";
     }
 }

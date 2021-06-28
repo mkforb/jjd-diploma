@@ -26,7 +26,7 @@
           </div>
         </div>
         <hr class="my-4"/>
-        <a href="@{/customer-product/{customerId}(customerId=${cp.customer.id})}" class="btn btn-secondary">Cancel</a>
+        <a th:href="@{/customer-product/{customerId}(customerId=${cp.customer.id})}" class="btn btn-secondary">Cancel</a>
         <button type="submit" class="btn btn-primary">Save Customer</button>
       </form>
     </div>
