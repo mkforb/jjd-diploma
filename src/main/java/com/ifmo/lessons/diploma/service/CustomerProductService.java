@@ -40,4 +40,8 @@ public class CustomerProductService {
     public void save(CustomerProduct customerProduct) {
         repository.save(customerProduct);
     }
+
+    public void delete(CustomerProduct customerProduct) {
+        repository.delete(customerProduct);
+    }
 }

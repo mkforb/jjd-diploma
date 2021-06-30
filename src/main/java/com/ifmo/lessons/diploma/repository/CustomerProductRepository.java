@@ -12,4 +12,6 @@ import java.util.List;
 public interface CustomerProductRepository extends PagingAndSortingRepository<CustomerProduct, CustomerProduct.CustomerProductKey> {
     @Query("SELECT cp FROM CustomerProduct cp WHERE cp.key.customerId = :customerId")
     List<CustomerProduct> findAllByCustomer(int customerId);
+    @Query("SELECT cp FROM CustomerProduct cp WHERE cp.key.productId = :productId")
+    List<CustomerProduct> findAllByProduct(int productId);
 }

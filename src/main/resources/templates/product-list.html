@@ -1,15 +1,13 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-  <title th:text="${title}"></title>
   <!--/*/<th:block th:insert="general.html :: headerfiles"></th:block>/*/-->
 </head>
 <body>
 <div th:replace="general.html :: mainmenu"></div>
 <div class="container">
   <main>
-    <h2 th:text="${title}"></h2>
-    <div class="alert alert-success" th:if="${MESSAGE}" th:text="${MESSAGE}"></div>
+    <th:block th:insert="general.html :: messages"></th:block>
     <p>
       <a th:href="@{/product/add}" class="btn">Добавить товар</a>
       <a th:href="@{/product/list/template}" class="btn">Шаблон</a>
@@ -40,7 +38,7 @@
             <td th:text="${product.uom}"></td>
             <td>
               <a th:href="@{/product/edit/{id}(id=${product.id})}">Изменить</a>
-              <a th:href="@{/product/delete/{id}(id=${product.id})}">Удалить</a>
+              <a th:href="@{/product/delete/{id}(id=${product.id})}" onclick="return confirm('Удалить товар?')">Удалить</a>
             </td>
           </tr>
         </tbody>

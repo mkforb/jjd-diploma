@@ -1,15 +1,13 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-  <title th:text="${title}"></title>
   <!--/*/<th:block th:insert="general.html :: headerfiles"></th:block>/*/-->
 </head>
 <body>
 <div th:replace="general.html :: mainmenu"></div>
 <div class="container">
   <main>
-    <h2 th:text="${title}"></h2>
-    <div class="alert alert-success" th:if="${MESSAGE}" th:text="${MESSAGE}"></div>
+    <th:block th:insert="general.html :: messages"></th:block>
     <p>
       <a th:href="@{/customer/add}" class="btn">Добавить клиента</a>
       <a th:href="@{/customer/list/template}" class="btn">Шаблон</a>
@@ -35,7 +33,7 @@
             <td>
               <a th:href="@{/customer-product/{id}/list(id=${customer.id})}">Товары клиента</a>
               <a th:href="@{/customer/edit/{id}(id=${customer.id})}">Изменить</a>
-              <a th:href="@{/customer/delete/{id}(id=${customer.id})}">Удалить</a>
+              <a th:href="@{/customer/delete/{id}(id=${customer.id})}" onclick="return confirm('Удалить клиента?')">Удалить</a>
             </td>
           </tr>
         </tbody>

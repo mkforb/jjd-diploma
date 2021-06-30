@@ -1,40 +1,40 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-  <title th:text="${title}"></title>
   <!--/*/<th:block th:insert="general.html :: headerfiles"></th:block>/*/-->
 </head>
 <body>
 <div th:replace="general.html :: mainmenu"></div>
 <main class="container">
   <div class="col-md-8 col-lg-8">
-    <h1 th:text="${title + ' ' + customerProduct.customer.name}"></h1>
-    <form action="#" th:action="@{/customer-product/{cId}/save/{pId}(cId=${customerProduct.customer.id},pId=${customerProduct.product.id})}" th:object="${customerProduct}" method="post">
-      <input type="hidden" th:field="*{customer}" id="customer"/>
+    <th:block th:insert="general.html :: messages"></th:block>
+    <form action="#" th:action="@{/customer-product/{cId}/save/{pId}(cId=${customerProductForm.customerProduct.customer.id},pId=${customerProductForm.customerProduct.product.id})}" th:object="${customerProductForm}" method="post">
+      <input type="hidden" th:field="*{productEdit}" id="product-edit"/>
+      <input type="hidden" th:field="*{customerProduct.customer}" id="customer"/>
       <div class="row g-3">
         <div class="col-12">
           <label for="product" class="form-label">Товар</label>
-          <select class="form-select" th:classappend="${#fields.hasErrors('product') ? 'is-invalid' : ''}" th:field="*{product}" id="product" th:if="${productEdit}">
+          <select class="form-select" th:classappend="${#fields.hasErrors('customerProduct.product') ? 'is-invalid' : ''}" th:field="*{customerProduct.product}" id="product" th:if="${customerProductForm.productEdit}">
             <option value="0"></option>
-            <option th:each="product : ${products}" th:value="${product.id}" th:text="${product.name}"></option>
+            <option th:each="product : ${customerProductForm.products}" th:value="${product.id}" th:text="${product.name}"></option>
           </select>
-          <div class="invalid-feedback" th:if="${#fields.hasErrors('product')}" th:errors="*{product}"></div>
-          <input type="hidden" th:field="*{product}" id="product" th:if="${!productEdit}"/>
-          <p th:if="${!productEdit}" th:text="*{product.name}"></p>
+          <div class="invalid-feedback" th:if="${#fields.hasErrors('customerProduct.product')}" th:errors="*{customerProduct.product}"></div>
+          <input type="hidden" th:field="*{customerProduct.product}" id="product" th:if="${!customerProductForm.productEdit}"/>
+          <p th:if="${!customerProductForm.productEdit}" th:text="*{customerProduct.product.name}"></p>
         </div>
         <div class="col-12">
           <label for="number" class="form-label">Артикул клиента</label>
-          <input type="text" class="form-control" th:classappend="${#fields.hasErrors('number') ? 'is-invalid' : ''}" th:field="*{number}" id="number" placeholder="Артикул клиента"/>
-          <div class="invalid-feedback" th:if="${#fields.hasErrors('number')}" th:errors="*{number}"></div>
+          <input type="text" class="form-control" th:classappend="${#fields.hasErrors('customerProduct.number') ? 'is-invalid' : ''}" th:field="*{customerProduct.number}" id="number" placeholder="Артикул клиента"/>
+          <div class="invalid-feedback" th:if="${#fields.hasErrors('customerProduct.number')}" th:errors="*{customerProduct.number}"></div>
         </div>
         <div class="col-12">
           <label for="price" class="form-label">Цена</label>
-          <input type="text" class="form-control" th:classappend="${#fields.hasErrors('price') ? 'is-invalid' : ''}" th:field="*{price}" id="price" placeholder="Цена"/>
-          <div class="invalid-feedback" th:if="${#fields.hasErrors('price')}" th:errors="*{price}"></div>
+          <input type="text" class="form-control" th:classappend="${#fields.hasErrors('customerProduct.price') ? 'is-invalid' : ''}" th:field="*{customerProduct.price}" id="price" placeholder="Цена"/>
+          <div class="invalid-feedback" th:if="${#fields.hasErrors('customerProduct.price')}" th:errors="*{customerProduct.price}"></div>
         </div>
       </div>
       <hr class="my-4"/>
-      <a th:href="@{/customer-product/{cId}/list(cId=${customerProduct.customer.id})}" class="btn btn-secondary">Отмена</a>
+      <a th:href="@{/customer-product/{cId}/list(cId=${customerProductForm.customerProduct.customer.id})}" class="btn btn-secondary">Отмена</a>
       <button type="submit" class="btn btn-primary">Сохранить</button>
     </form>
   </div>

@@ -38,7 +38,7 @@ public class HomeController {
         productService.save(product2);
 
         Customer customer1 = new Customer();
-        customer1.setName("ООО Продукт Трейд");
+        customer1.setName("ООО Продукт Трейдинг");
         customer1.setAddress("СПб, ул. Тверская, 11");
         customerService.save(customer1);
 
@@ -63,6 +63,7 @@ public class HomeController {
 
     @GetMapping("/")
     public String home(Model model) {
+        model.addAttribute("title", "Главная");
         return "index";
     }
 }

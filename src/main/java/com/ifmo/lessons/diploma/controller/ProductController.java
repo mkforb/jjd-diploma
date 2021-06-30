@@ -54,12 +54,13 @@ public class ProductController extends AbstractController {
     }
 
     @GetMapping("/edit/{id}")
-    public String edit(@PathVariable int id, Model model) {
+    public String edit(@PathVariable int id, Model model, RedirectAttributes redirectAttributes) {
         Product product = null;
         try {
             product = service.getById(id);
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
+            addErrorMessage(redirectAttributes, "Товар не найден");
             return "redirect:/product/list";
         }
         model.addAttribute("title", getTitle(product));
@@ -76,7 +77,7 @@ public class ProductController extends AbstractController {
             return "product-add";
         }
         service.save(product);
-        redirectAttributes.addFlashAttribute("MESSAGE", "Товар сохранен");
+        addSuccessMessage(redirectAttributes, "Товар сохранен");
         return "redirect:/product/list";
     }
 
@@ -87,10 +88,16 @@ public class ProductController extends AbstractController {
             product = service.getById(id);
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
+            addErrorMessage(redirectAttributes, "Товар не найден");
             return "redirect:/product/list";
         }
-        service.delete(product);
-        redirectAttributes.addFlashAttribute("MESSAGE", "Товар удален");
+        try {
+            service.delete(product);
+        } catch (IllegalArgumentException e) {
+            addErrorMessage(redirectAttributes, e.getMessage());
+            return "redirect:/product/list";
+        }
+        addSuccessMessage(redirectAttributes, "Товар удален");
         return "redirect:/product/list";
     }
 
@@ -108,12 +115,7 @@ public class ProductController extends AbstractController {
 
     @PostMapping("/upload")
     public String upload(@RequestParam("file") MultipartFile file, RedirectAttributes redirectAttributes) {
-        if (file.isEmpty()) {
-            redirectAttributes.addFlashAttribute("MESSAGE", "Пустой файл");
-            return "redirect:/product/list";
-        }
-        if (!ExcelHelper.hasExcelFormat(file)) {
-            redirectAttributes.addFlashAttribute("MESSAGE", "Неверный формат файла");
+        if (!checkExcelFile(file, redirectAttributes)) {
             return "redirect:/product/list";
         }
         ExcelHelper eh = new ExcelHelper(getFields());
@@ -129,7 +131,7 @@ public class ProductController extends AbstractController {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        redirectAttributes.addFlashAttribute("MESSAGE", "Файл загружен");
+        addSuccessMessage(redirectAttributes, "Файл загружен");
         return "redirect:/product/list";
     }
 

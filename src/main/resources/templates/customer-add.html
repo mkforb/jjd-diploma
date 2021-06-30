@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-  <title th:text="${title}"></title>
   <!--/*/<th:block th:insert="general.html :: headerfiles"></th:block>/*/-->
 </head>
 <body class="bg-light">
@@ -9,7 +8,7 @@
 <main class="container">
   <div class="row g-5">
     <div class="col-md-8 col-lg-8">
-      <h1 th:text="${title}"></h1>
+      <th:block th:insert="general.html :: messages"></th:block>
       <form action="#" th:action="@{/customer/save}" th:object="${customer}" method="post">
         <input type="hidden" th:field="*{id}" in="id"/>
         <div class="row g-3">

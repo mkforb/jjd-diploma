@@ -1,11 +1,11 @@
 package com.ifmo.lessons.diploma.form;
 
+import com.ifmo.lessons.diploma.entity.CustomerProduct;
 import com.ifmo.lessons.diploma.entity.Product;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,12 +14,9 @@ import java.util.List;
  */
 @Getter
 @Setter
-public class CustomerProductForm extends AbstractForm {
-    private int cId;
-    private String cName;
-    private int pId;
-    @NotEmpty
-    private String number;
-    private double price;
+public class CustomerProductForm {
+    @Valid
+    private CustomerProduct customerProduct = new CustomerProduct();
+    private boolean productEdit;
     private List<Product> products = new ArrayList<>();
 }

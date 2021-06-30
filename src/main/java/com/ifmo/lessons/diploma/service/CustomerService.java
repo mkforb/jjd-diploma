@@ -1,6 +1,8 @@
 package com.ifmo.lessons.diploma.service;
 
 import com.ifmo.lessons.diploma.entity.Customer;
+import com.ifmo.lessons.diploma.entity.CustomerProduct;
+import com.ifmo.lessons.diploma.repository.CustomerProductRepository;
 import com.ifmo.lessons.diploma.repository.CustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,10 +16,12 @@ import java.util.List;
 @Service
 public class CustomerService {
     private final CustomerRepository repository;
+    private final CustomerProductRepository customerProductRepository;
 
     @Autowired
-    public CustomerService(CustomerRepository repository) {
+    public CustomerService(CustomerRepository repository, CustomerProductRepository customerProductRepository) {
         this.repository = repository;
+        this.customerProductRepository = customerProductRepository;
     }
 
     public List<Customer> getAll() {
@@ -39,7 +43,11 @@ public class CustomerService {
     }
 
     public void delete(Customer customer) {
-        // ToDo: проверить есть у клиента товары
+        // Проверить есть ли у клиента товары
+        List<CustomerProduct> list = customerProductRepository.findAllByCustomer(customer.getId());
+        if (!list.isEmpty()) {
+            throw new IllegalArgumentException("У клиента есть товары. Удаление невозможно.");
+        }
         repository.delete(customer);
     }
 }

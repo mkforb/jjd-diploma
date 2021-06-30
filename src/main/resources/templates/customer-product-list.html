@@ -1,17 +1,15 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-  <title th:text="${form.title}"></title>
   <!--/*/<th:block th:insert="general.html :: headerfiles"></th:block>/*/-->
 </head>
 <body>
 <div th:replace="general.html :: mainmenu"></div>
 <div class="container">
   <main>
-    <h2 th:text="${form.title + ' ' + form.customer.name}"></h2>
-    <div class="alert alert-success" th:if="${MESSAGE}" th:text="${MESSAGE}"></div>
+    <th:block th:insert="general.html :: messages"></th:block>
     <p>
-      <a th:href="@{/customer-product/{cId}/add(cId=${form.customer.id})}" class="btn">Добавить товар клиенту</a>
+      <a th:href="@{/customer-product/{cId}/add(cId=${form.customer.id})}" class="btn">Добавить товар клиента</a>
       <a th:href="@{/customer-product/{cId}/list/edit(cId=${form.customer.id})}" class="btn">Изменить</a>
       <a th:href="@{/customer-product/list/template}" class="btn">Шаблон</a>
       <a th:href="@{/customer-product/{cId}/list/download(cId=${form.customer.id})}" class="btn">Выгрузить список</a>
@@ -37,7 +35,7 @@
             <td th:text="${elem.price}"></td>
             <td>
               <a th:href="@{/customer-product/{cId}/edit/{pId}(cId=${form.customer.id},pId=${elem.product.id})}">Изменить</a>
-              <a th:href="@{/customer-product/{cId}/delete/{pId}(cId=${form.customer.id},pId=${elem.product.id})}">Удалить</a>
+              <a th:href="@{/customer-product/{cId}/delete/{pId}(cId=${form.customer.id},pId=${elem.product.id})}" onclick="return confirm('Удалить товар клиента?')">Удалить</a>
             </td>
           </tr>
         </tbody>

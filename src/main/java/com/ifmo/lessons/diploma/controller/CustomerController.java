@@ -72,7 +72,7 @@ public class CustomerController extends AbstractController {
             return "customer-add";
         }
         service.save(customer);
-        redirectAttributes.addFlashAttribute("MESSAGE", "Клиент сохранен");
+        addSuccessMessage(redirectAttributes, "Клиент сохранен");
         return "redirect:/customer/list";
     }
 
@@ -83,10 +83,16 @@ public class CustomerController extends AbstractController {
             customer = service.getById(id);
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
+            addErrorMessage(redirectAttributes, e.getMessage());
             return "redirect:/customer/list";
         }
-        service.delete(customer);
-        redirectAttributes.addFlashAttribute("MESSAGE", "Клиент удален");
+        try {
+            service.delete(customer);
+        } catch (IllegalArgumentException e) {
+            addErrorMessage(redirectAttributes, e.getMessage());
+            return "redirect:/customer/list";
+        }
+        addSuccessMessage(redirectAttributes, "Клиент удален");
         return "redirect:/customer/list";
     }
 
@@ -104,12 +110,7 @@ public class CustomerController extends AbstractController {
 
     @PostMapping("/upload")
     public String upload(@RequestParam("file") MultipartFile file, RedirectAttributes redirectAttributes) {
-        if (file.isEmpty()) {
-            redirectAttributes.addFlashAttribute("MESSAGE", "Пустой файл");
-            return "redirect:/customer/list";
-        }
-        if (!ExcelHelper.hasExcelFormat(file)) {
-            redirectAttributes.addFlashAttribute("MESSAGE", "Неверный формат файла");
+        if (!checkExcelFile(file, redirectAttributes)) {
             return "redirect:/customer/list";
         }
         ExcelHelper eh = new ExcelHelper(getFields());
@@ -125,7 +126,7 @@ public class CustomerController extends AbstractController {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        redirectAttributes.addFlashAttribute("MESSAGE", "Файл загружен");
+        addSuccessMessage(redirectAttributes, "Файл загружен");
         return "redirect:/customer/list";
     }
 

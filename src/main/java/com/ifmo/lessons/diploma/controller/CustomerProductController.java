@@ -3,8 +3,10 @@ package com.ifmo.lessons.diploma.controller;
 import com.ifmo.lessons.diploma.common.ExcelHelper;
 import com.ifmo.lessons.diploma.entity.Customer;
 import com.ifmo.lessons.diploma.entity.CustomerProduct;
+import com.ifmo.lessons.diploma.entity.Parent;
 import com.ifmo.lessons.diploma.entity.Product;
 import com.ifmo.lessons.diploma.form.CustomerProductExcel;
+import com.ifmo.lessons.diploma.form.CustomerProductForm;
 import com.ifmo.lessons.diploma.form.CustomerProductsForm;
 import com.ifmo.lessons.diploma.service.CustomerProductService;
 import com.ifmo.lessons.diploma.service.CustomerService;
@@ -15,6 +17,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -33,7 +37,7 @@ import java.util.Map;
  */
 @Controller
 @RequestMapping("/customer-product")
-public class CustomerProductController {
+public class CustomerProductController extends AbstractController {
     private final CustomerProductService service;
     private final CustomerService customerService;
     private final ProductService productService;
@@ -48,9 +52,10 @@ public class CustomerProductController {
     @GetMapping("/{id}/list")
     public String getByCustomer(@PathVariable int id, Model model) {
         CustomerProductsForm form = new CustomerProductsForm();
-        form.setTitle("Товары клиента");
-        form.setCustomer(customerService.getById(id));
+        Customer customer = customerService.getById(id);
+        form.setCustomer(customer);
         form.setList(service.getByCustomer(id));
+        model.addAttribute("title", "Товары клиента " + customer.getName());
         model.addAttribute("form", form);
         return "customer-product-list";
     }
@@ -58,91 +63,94 @@ public class CustomerProductController {
     @GetMapping("/{id}/list/edit")
     public String editByCustomer(@PathVariable int id, Model model) {
         CustomerProductsForm form = new CustomerProductsForm();
-        form.setTitle("Товары клиента");
-        form.setCustomer(customerService.getById(id));
+        Customer customer = customerService.getById(id);
+        form.setCustomer(customer);
         form.setList(service.getByCustomer(id));
+        model.addAttribute("title", "Товары клиента " + customer.getName());
         model.addAttribute("form", form);
         return "customer-product-list-edit";
     }
 
     @PostMapping("/{id}/list/save")
-    public String save(@PathVariable int id, CustomerProductsForm form, Model model) {
+    public String save(@PathVariable int id, CustomerProductsForm form, RedirectAttributes redirectAttributes) {
         //form.getList().forEach(cp -> System.out.println(cp.getCustomer().getId() + " " + cp.getProduct().getId() + " " + cp.getNumber() + " " + cp.getPrice()));
         form.getList().forEach(cp -> {
             cp.getKey().setCustomerId(cp.getCustomer().getId());
             cp.getKey().setProductId(cp.getProduct().getId());
             service.save(cp);
         });
+        addSuccessMessage(redirectAttributes, "Данные сохранены");
         return "redirect:/customer-product/" + id + "/list";
     }
 
     @GetMapping("/{id}/add")
     public String add(@PathVariable int id, Model model) {
-        CustomerProduct cp = new CustomerProduct();
-        Customer customer = customerService.getById(id);
-        cp.setCustomer(customer);
-        model.addAttribute("title", "Добавить товар клиента");
-        model.addAttribute("productEdit", true);
-        model.addAttribute("products", productService.getAll());
-        model.addAttribute("customerProduct", cp);
+        CustomerProductForm cpf = new CustomerProductForm();
+        cpf.setProductEdit(true);
+        cpf.getCustomerProduct().setCustomer(customerService.getById(id));
+        cpf.setProducts(productService.getAll());
+        model.addAttribute("title", "Добавить товар клиента " + cpf.getCustomerProduct().getCustomer().getName());
+        model.addAttribute("customerProductForm", cpf);
         return "customer-product-add";
     }
 
     @GetMapping("/{cId}/edit/{pId}")
     public String edit(@PathVariable int cId, @PathVariable int pId, Model model) {
-        CustomerProduct cp = service.getByPk(cId, pId);
-        System.out.println(cp.getKey().getCustomerId());
-        model.addAttribute("title", "Изменить товар клиента");
-        model.addAttribute("productEdit", false);
-        model.addAttribute("products", productService.getAll());
-        model.addAttribute("customerProduct", cp);
+        CustomerProductForm cpf = new CustomerProductForm();
+        cpf.setProductEdit(false);
+        cpf.setCustomerProduct(service.getByPk(cId, pId));
+        cpf.setProducts(productService.getAll());
+        model.addAttribute("title", "Изменить товар клиента " + cpf.getCustomerProduct().getCustomer().getName());
+        model.addAttribute("customerProductForm", cpf);
         return "customer-product-add";
     }
 
     @PostMapping("/{cId}/save/{pId}")
-    public String save(@PathVariable int cId, @PathVariable int pId, @Valid CustomerProduct customerProduct, BindingResult result, Model model, RedirectAttributes redirectAttributes) {
-        System.out.println(pId);
+    public String save(@PathVariable int cId, @PathVariable int pId, @Valid CustomerProductForm customerProductForm, BindingResult result, Model model, RedirectAttributes redirectAttributes) {
         if (result.hasErrors()) {
-            if (customerProduct.getProduct() == null) {
-                customerProduct.setProduct(new Product());
+            if (customerProductForm.getCustomerProduct().getProduct() == null) {
+                customerProductForm.getCustomerProduct().setProduct(new Product());
             }
-            model.addAttribute("title", "Изменить товар клиента");
-            if (pId == 0) {
-                model.addAttribute("productEdit", true);
-            } else {
-                model.addAttribute("productEdit", false);
-            }
-            model.addAttribute("products", productService.getAll());
+            customerProductForm.setProducts(productService.getAll());
+            model.addAttribute("title", "Изменить товар клиента " + customerProductForm.getCustomerProduct().getCustomer().getName());
             return "customer-product-add";
         }
-        if (pId == 0) {
+        if (customerProductForm.isProductEdit()) {
             try {
-                CustomerProduct cp = service.getByPk(customerProduct.getCustomer().getId(), customerProduct.getProduct().getId());
+                CustomerProduct cp = service.getByPk(customerProductForm.getCustomerProduct().getCustomer().getId(), customerProductForm.getCustomerProduct().getProduct().getId());
                 if (cp != null) {
-                    redirectAttributes.addFlashAttribute("MESSAGE", "Такой товар у клиента уже есть");
-                    return "redirect:/customer-product/" + cId + "/list";
+                    ObjectError error = new FieldError("customerProductForm", "customerProduct.product", "Такой товар у клиента уже есть");
+                    result.addError(error);
+                    customerProductForm.setProducts(productService.getAll());
+                    return "customer-product-add";
+                    //addErrorMessage(redirectAttributes, "Такой товар у клиента уже есть");
+                    //return "redirect:/customer-product/" + cId + "/list";
                 }
             } catch (IllegalArgumentException e) {
 
             }
         }
+        CustomerProduct customerProduct = customerProductForm.getCustomerProduct();
         customerProduct.getKey().setCustomerId(customerProduct.getCustomer().getId());
         customerProduct.getKey().setProductId(customerProduct.getProduct().getId());
         service.save(customerProduct);
-        redirectAttributes.addFlashAttribute("MESSAGE", "Материал клиента сохранен");
+        addSuccessMessage(redirectAttributes, "Материал клиента сохранен");
         return "redirect:/customer-product/" + cId + "/list";
     }
 
-    @GetMapping(value = "/list/template", produces = ExcelHelper.TYPE)
-    public @ResponseBody byte[] template() {
-        ExcelHelper eh = new ExcelHelper(getFields());
-        try (Workbook wb = eh.getTemplate(); ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-            wb.write(os);
-            return os.toByteArray();
-        } catch (IOException e) {
+    @GetMapping("/{cId}/delete/{pId}")
+    public String delete(@PathVariable int cId, @PathVariable int pId, RedirectAttributes redirectAttributes) {
+        CustomerProduct customerProduct = null;
+        try {
+            customerProduct = service.getByPk(cId, pId);
+        } catch (IllegalArgumentException e) {
             e.printStackTrace();
+            addErrorMessage(redirectAttributes, "Запись не найдена");
+            return "redirect:/customer-product/" + cId + "/list";
         }
-        return null;
+        service.delete(customerProduct);
+        addSuccessMessage(redirectAttributes, "Запись удалена");
+        return "redirect:/customer-product/" + cId + "/list";
     }
 
     @GetMapping(value = "/{id}/list/download", produces = ExcelHelper.TYPE)
@@ -165,12 +173,7 @@ public class CustomerProductController {
     @PostMapping("/upload/{id}")
     public String upload(@PathVariable int id, @RequestParam("file") MultipartFile file, RedirectAttributes redirectAttributes) {
         String redirectPath = "redirect:/customer-product/" + id + "/list";
-        if (file.isEmpty()) {
-            redirectAttributes.addFlashAttribute("MESSAGE", "Пустой файл");
-            return redirectPath;
-        }
-        if (!ExcelHelper.hasExcelFormat(file)) {
-            redirectAttributes.addFlashAttribute("MESSAGE", "Неверный формат файла");
+        if (!checkExcelFile(file, redirectAttributes)) {
             return redirectPath;
         }
         ExcelHelper eh = new ExcelHelper(getFields());
@@ -179,7 +182,7 @@ public class CustomerProductController {
             list = eh.getList(wb, CustomerProductExcel.class);
         } catch (IOException e) {
             e.printStackTrace();
-            redirectAttributes.addFlashAttribute("MESSAGE", e.getMessage());
+            addErrorMessage(redirectAttributes, e.getMessage());
             return redirectPath;
         }
         for (CustomerProductExcel cpe : list) {
@@ -187,14 +190,14 @@ public class CustomerProductController {
             try {
                 Customer c = customerService.getById(cpe.getCustomerId());
             } catch (IllegalArgumentException e) {
-                redirectAttributes.addFlashAttribute("MESSAGE", "В файле несуществующий ID клиента " + cpe.getCustomerId());
+                addErrorMessage(redirectAttributes, "В файле несуществующий ID клиента " + cpe.getCustomerId());
                 return redirectPath;
             }
             // Проверить товар
             try {
                 Product p = productService.getById(cpe.getProductId());
             } catch (IllegalArgumentException e) {
-                redirectAttributes.addFlashAttribute("MESSAGE", "В файле несуществующий ID товара " + cpe.getProductId());
+                addErrorMessage(redirectAttributes, "В файле несуществующий ID товара " + cpe.getProductId());
                 return redirectPath;
             }
         }
@@ -209,11 +212,17 @@ public class CustomerProductController {
             cp.setPrice(cpe.getPrice());
             service.save(cp);
         }
-        redirectAttributes.addFlashAttribute("MESSAGE", "Файл загружен");
+        addSuccessMessage(redirectAttributes, "Файл загружен");
         return redirectPath;
     }
 
-    private Map<String, String> getFields() {
+    @Override
+    protected String getTitle(Parent parent) {
+        return null;
+    }
+
+    @Override
+    protected Map<String, String> getFields() {
         Map<String, String> fields = new LinkedHashMap<>();
         fields.put("Customer ID", "customerId");
         fields.put("Customer Name", "customerName");
