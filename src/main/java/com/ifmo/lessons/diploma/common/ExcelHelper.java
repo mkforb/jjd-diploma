@@ -1,5 +1,6 @@
 package com.ifmo.lessons.diploma.common;
 
+import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.web.multipart.MultipartFile;
@@ -7,6 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -99,7 +101,19 @@ public class ExcelHelper {
                         setMethod.invoke(o, value);
                     } else if (cellType == CellType.NUMERIC) {
                         Double value = cell.getNumericCellValue();
-                        setMethod.invoke(o, value);
+                        Class<?> paramType = getGetterReturnType(cl, field);
+                        if (paramType == int.class || paramType == Integer.class) {
+                            setMethod.invoke(o, value.intValue());
+                        } else if (paramType == double.class || paramType == Double.class) {
+                            setMethod.invoke(o, value);
+                        } else if (paramType == float.class || paramType == Float.class) {
+                            setMethod.invoke(o, value.floatValue());
+                        } else if (paramType == long.class || paramType == Long.class) {
+                            setMethod.invoke(o, value.longValue());
+                        } else if (paramType == Date.class) {
+                            Date date = DateUtil.getJavaDate(value);
+                            setMethod.invoke(o, date);
+                        }
                     }
                     i++;
                 }

@@ -21,13 +21,17 @@ public class CustomerService {
     }
 
     public List<Customer> getAll() {
-        List<Customer> customers = new ArrayList<>();
-        repository.findAll().forEach(customers::add);
-        return customers;
+        List<Customer> list = new ArrayList<>();
+        repository.findAll().forEach(list::add);
+        return list;
     }
 
     public Customer getById(int id) {
         return repository.findById(id).orElseThrow(IllegalArgumentException::new);
+    }
+
+    public Customer getByName(String name) {
+        return repository.findByName(name);
     }
 
     public void save(Customer customer) {
@@ -35,6 +39,7 @@ public class CustomerService {
     }
 
     public void delete(Customer customer) {
+        // ToDo: проверить есть у клиента товары
         repository.delete(customer);
     }
 }

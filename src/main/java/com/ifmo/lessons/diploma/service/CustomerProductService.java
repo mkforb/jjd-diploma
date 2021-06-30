@@ -5,6 +5,7 @@ import com.ifmo.lessons.diploma.repository.CustomerProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -17,6 +18,12 @@ public class CustomerProductService {
     @Autowired
     public CustomerProductService(CustomerProductRepository repository) {
         this.repository = repository;
+    }
+
+    public List<CustomerProduct> getAll() {
+        List<CustomerProduct> list = new ArrayList<>();
+        repository.findAll().forEach(list::add);
+        return list;
     }
 
     public List<CustomerProduct> getByCustomer(int customerId) {

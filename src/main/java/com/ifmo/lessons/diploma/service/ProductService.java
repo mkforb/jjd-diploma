@@ -28,7 +28,7 @@ public class ProductService {
         return products;
     }
 
-    public Product getById(int id) {
+    public Product getById(int id) throws IllegalArgumentException {
         return repository.findById(id).orElseThrow(IllegalArgumentException::new);
     }
 
@@ -41,6 +41,7 @@ public class ProductService {
     }
 
     public void delete(Product product) {
+        // ToDo: используется ли товар у клиента
         repository.delete(product);
     }
 }

@@ -2,12 +2,11 @@ package com.ifmo.lessons.diploma.controller;
 
 import com.ifmo.lessons.diploma.common.ExcelHelper;
 import com.ifmo.lessons.diploma.common.Unit;
+import com.ifmo.lessons.diploma.entity.Parent;
 import com.ifmo.lessons.diploma.entity.Product;
 import com.ifmo.lessons.diploma.service.ProductService;
-import org.apache.poi.EmptyFileException;
-import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.util.IOUtils;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,40 +16,24 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by User on 14.06.2021.
  */
 @Controller
 @RequestMapping("/product")
-public class ProductController {
+public class ProductController extends AbstractController {
     private final ProductService service;
 
     @Autowired
     public ProductController(ProductService service) {
         this.service = service;
-
-        // Test
-        Product product1 = new Product();
-        product1.setName("Prod 1");
-        product1.setSku("PROD-001");
-        product1.setPrice(105);
-        product1.setStock(8);
-        product1.setUom("ШТ");
-        service.save(product1);
-
-        product1 = new Product();
-        product1.setName("Prod 2");
-        product1.setSku("PROD-002");
-        product1.setPrice(59);
-        product1.setStock(0);
-        product1.setUom("ШТ");
-        service.save(product1);
     }
 
     @GetMapping("/list")
@@ -63,77 +46,57 @@ public class ProductController {
 
     @GetMapping("/add")
     public String add(Model model) {
-        model.addAttribute("title", "Добавить товар");
-        model.addAttribute("product", new Product());
+        Product product = new Product();
+        model.addAttribute("title", getTitle(product));
+        model.addAttribute("product", product);
         model.addAttribute("uoms", Unit.values());
         return "product-add";
     }
 
     @GetMapping("/edit/{id}")
     public String edit(@PathVariable int id, Model model) {
-        Product product = service.getById(id);
-        model.addAttribute("title", "Изменить товар");
+        Product product = null;
+        try {
+            product = service.getById(id);
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            return "redirect:/product/list";
+        }
+        model.addAttribute("title", getTitle(product));
         model.addAttribute("product", product);
         model.addAttribute("uoms", Unit.values());
         return "product-add";
     }
 
     @PostMapping("/save")
-    public String save(@Valid Product product, BindingResult result, Model model) {
+    public String save(@Valid Product product, BindingResult result, Model model, RedirectAttributes redirectAttributes) {
         if (result.hasErrors()) {
+            model.addAttribute("title", getTitle(product));
             model.addAttribute("uoms", Unit.values());
             return "product-add";
         }
         service.save(product);
+        redirectAttributes.addFlashAttribute("MESSAGE", "Товар сохранен");
         return "redirect:/product/list";
     }
 
     @GetMapping("/delete/{id}")
-    public String delete(@PathVariable("id") int id, Model model) {
-        Product product = service.getById(id);
-        service.delete(product);
-        return "redirect:/product/list";
-    }
-
-    @GetMapping(value = "/list/template", produces = ExcelHelper.TYPE)
-    public @ResponseBody byte[] template() {
-        ExcelHelper eh = new ExcelHelper(getFields());
-        try (Workbook wb = eh.getTemplate(); ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-            wb.write(os);
-            return os.toByteArray();
-        } catch (IOException e) {
+    public String delete(@PathVariable("id") int id, RedirectAttributes redirectAttributes) {
+        Product product = null;
+        try {
+            product = service.getById(id);
+        } catch (IllegalArgumentException e) {
             e.printStackTrace();
+            return "redirect:/product/list";
         }
-        return null;
+        service.delete(product);
+        redirectAttributes.addFlashAttribute("MESSAGE", "Товар удален");
+        return "redirect:/product/list";
     }
 
     @GetMapping(value = "/list/download", produces = ExcelHelper.TYPE)
     public @ResponseBody byte[] download() {
         ExcelHelper eh = new ExcelHelper(getFields());
-        /*String[] fields = {"SKU", "Name", "Price", "Stock", "UoM"};
-        Workbook wb = new XSSFWorkbook();
-        Sheet sh = wb.createSheet();
-        Row row = sh.createRow(0);
-        for (int i = 0; i < fields.length; i++) {
-            Cell cell = row.createCell(i);
-            cell.setCellValue(fields[i]);
-        }
-        List<Product> list = service.getAll();
-        int i = 0;
-        for (Product pr : list) {
-            i++;
-            row = sh.createRow(i);
-            Cell cell = row.createCell(0);
-            cell.setCellValue(pr.getSku());
-            cell = row.createCell(1);
-            cell.setCellValue(pr.getName());
-            cell = row.createCell(2);
-            cell.setCellValue(pr.getPrice());
-            cell = row.createCell(3);
-            cell.setCellValue(pr.getStock());
-            cell = row.createCell(4);
-            cell.setCellValue(pr.getUom());
-        }*/
         try (Workbook wb = eh.getWb(service.getAll()); ByteArrayOutputStream os = new ByteArrayOutputStream()) {
             wb.write(os);
             return os.toByteArray();
@@ -170,7 +133,16 @@ public class ProductController {
         return "redirect:/product/list";
     }
 
-    private Map<String, String> getFields() {
+    @Override
+    protected String getTitle(Parent parent) {
+        if (parent.getId() == 0) {
+            return "Добавить товар";
+        }
+        return "Изменить товар";
+    }
+
+    @Override
+    protected Map<String, String> getFields() {
         Map<String, String> fields = new LinkedHashMap<>();
         fields.put("SKU", "sku");
         fields.put("Name", "name");

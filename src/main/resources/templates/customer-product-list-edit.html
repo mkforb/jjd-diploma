@@ -1,26 +1,25 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-  <title th:text="${title}"></title>
+  <title th:text="${form.title}"></title>
   <!--/*/<th:block th:insert="general.html :: headerfiles"></th:block>/*/-->
 </head>
 <body>
 <div th:replace="general.html :: mainmenu"></div>
 <div class="container">
   <main>
-    <h2 th:text="${title}"></h2>
-    <p><a th:href="@{/customer-product/{customerId}/add(customerId=${customer.id})}">Add product</a></p>
-    <form action="#" th:action="@{/customer-product/{id}/save(id=${customer.id})}" th:object="${form}" method="post">
-      <button type="submit" class="btn btn-primary">Save Customer</button>
-      <a th:href="@{/customer-product/{id}(id=${customer.id})}" class="btn btn-secondary">Cancel</a>
+    <h2 th:text="${form.title + ' ' + form.customer.name}"></h2>
+    <form action="#" th:action="@{/customer-product/{id}/list/save(id=${form.customer.id})}" th:object="${form}" method="post">
+      <a th:href="@{/customer-product/{id}/list(id=${form.customer.id})}" class="btn btn-secondary">Отмена</a>
+      <button type="submit" class="btn btn-primary">Сохранить</button>
       <div class="table-responsive">
         <table class="table">
           <thead>
             <tr>
-              <th>Product</th>
-              <th>Number</th>
-              <th>Price</th>
-              <th>Actions</th>
+              <th>Товар</th>
+              <th>Артикул клиента</th>
+              <th>Цена</th>
+              <th>Действия</th>
             </tr>
           </thead>
           <tbody>

@@ -8,7 +8,7 @@
 <div th:replace="general.html :: mainmenu"></div>
 <main class="container">
   <div class="row g-5">
-    <div class="col-md-7 col-lg-8">
+    <div class="col-md-8 col-lg-8">
       <h1 th:text="${title}"></h1>
       <form action="#" th:action="@{/product/save}" th:object="${product}" method="post">
         <input type="hidden" th:field="*{id}" in="id"/>

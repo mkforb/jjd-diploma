@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 /**
@@ -21,12 +23,16 @@ public class CustomerProduct {
 
     @ManyToOne
     @MapsId("customerId")
+    @NotNull
     private Customer customer = new Customer();
 
     @ManyToOne
     @MapsId("productId")
+    @NotNull
     private Product product = new Product();
 
+    @Column(length = 20)
+    @NotEmpty
     private String number;
     private double price;
 
