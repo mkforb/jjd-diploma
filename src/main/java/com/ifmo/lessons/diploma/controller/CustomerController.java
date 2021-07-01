@@ -141,8 +141,8 @@ public class CustomerController extends AbstractController {
     @Override
     protected Map<String, String> getFields() {
         Map<String, String> fields = new LinkedHashMap<>();
-        fields.put("Name", "name");
-        fields.put("Address", "address");
+        fields.put("Название", "name");
+        fields.put("Адрес", "address");
         return fields;
     }
 }

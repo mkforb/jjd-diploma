@@ -146,11 +146,11 @@ public class ProductController extends AbstractController {
     @Override
     protected Map<String, String> getFields() {
         Map<String, String> fields = new LinkedHashMap<>();
-        fields.put("SKU", "sku");
-        fields.put("Name", "name");
-        fields.put("Price", "price");
-        fields.put("Stock", "stock");
-        fields.put("UoM", "uom");
+        fields.put("Артикул", "sku");
+        fields.put("Название", "name");
+        fields.put("Цена", "price");
+        fields.put("Запас", "stock");
+        fields.put("ЕИ", "uom");
         return fields;
     }
 }

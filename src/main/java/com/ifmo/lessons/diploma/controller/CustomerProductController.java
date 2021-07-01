@@ -224,12 +224,12 @@ public class CustomerProductController extends AbstractController {
     @Override
     protected Map<String, String> getFields() {
         Map<String, String> fields = new LinkedHashMap<>();
-        fields.put("Customer ID", "customerId");
-        fields.put("Customer Name", "customerName");
-        fields.put("Product ID", "productId");
-        fields.put("Product Name", "productName");
-        fields.put("Number", "number");
-        fields.put("Price", "price");
+        fields.put("ID клиента", "customerId");
+        fields.put("Название клиента", "customerName");
+        fields.put("ID товара", "productId");
+        fields.put("Название товара", "productName");
+        fields.put("Артикул клиента", "number");
+        fields.put("Цена", "price");
         return fields;
     }
 }
